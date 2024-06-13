@@ -15,38 +15,47 @@ public class AccountRepository {
     private final JdbcTemplate db;
 
     public AccountRepository(JdbcTemplate db) {
-
         this.db = db;
     }
 
     public Account save(Account account) {
-        Long id = db.queryForObject("select nextval('account_sequence')", Long.class);
-        account.setId(id);
-        db.update("insert into account (id, name, surname, alias, email, date_created, date_modified) " +
-                "values (?, ?, ?, ?, ?, ?, ?)", account.getId(), account.getName(), account.getSurname(), account.getAlias(),
-                account.getEmail(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDataModified()));
-        return account;
-
+        if (account.getId() == null) {
+            Long id = db.queryForObject("select nextval('account_sequence')", Long.class);
+            account.setId(id);
+            db.update ("insert into account (id, date_created, date_modified, alias, name, surname, email) " +
+                            "values (?, ?, ?, ?, ?, ?, ?)", account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()),
+                    account.getAlias(), account.getName(), account.getSurname(), account.getEmail());
+            return account;
+        } else {
+            db.update ("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()),
+                    account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getId());
+            return findAccountById(account.getId());
+        }
     }
 
     public Optional<Account> findById(Long id) {
         try {
-            Account account = db.queryForObject("select * from account where id = ?", this::map, id);
+            Account account = findAccountById(id);
             return Optional.ofNullable(account);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
+    private Account findAccountById(Long id) {
+        Account account = db.queryForObject("select * from account where id = ?", this::map, id);
+        return account;
+    }
+
     private Account map(ResultSet resultSet, int i) throws SQLException {
         Account account = new Account();
         account.setId(resultSet.getLong("id"));
+        account.setDateCreated(resultSet.getTimestamp("date_created").toInstant());
+        account.setDateModified(resultSet.getTimestamp("date_modified").toInstant());
         account.setAlias(resultSet.getString("alias"));
         account.setName(resultSet.getString("name"));
         account.setSurname(resultSet.getString("surname"));
         account.setEmail(resultSet.getString("email"));
-        account.setDateCreated(resultSet.getTimestamp("date_created").toInstant());
-        account.setDataModified(resultSet.getTimestamp("date_modified").toInstant());
         return account;
     }
 }

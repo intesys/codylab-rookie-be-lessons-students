@@ -13,16 +13,18 @@ import java.util.Optional;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+
     public AccountService(AccountRepository accountRepository, AccountMapper accountMapper) {
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
     }
-    public AccountDTO createAccount (AccountDTO accountDTO) {
+
+    public AccountDTO createAccount(AccountDTO accountDTO) {
         Account account = accountMapper.toEntity (accountDTO);
 
         Instant now = Instant.now();
         account.setDateCreated(now);
-        account.setDataModified(now);
+        account.setDateModified(now);
 
         account = accountRepository.save (account);
         accountDTO = accountMapper.toDataTransferObject (account);
@@ -30,8 +32,24 @@ public class AccountService {
     }
 
     public AccountDTO getAccount(Long id) {
-        Optional<Account> account =  accountRepository.findById(id);
+        Optional<Account> account = accountRepository.findById (id);
         Optional<AccountDTO> accountDTO = account.map(accountMapper::toDataTransferObject);
         return accountDTO.orElseThrow(() -> new NotFound(Account.class, id));
+    }
+
+    public AccountDTO updateAccount(Long id, AccountDTO accountDTO) {
+        if (accountRepository.findById (id).isEmpty()) {
+            throw new NotFound(Account.class, id);
+        }
+
+        accountDTO.setId(id);
+        Account account = accountMapper.toEntity (accountDTO);
+
+        Instant now = Instant.now();
+        account.setDateModified(now);
+
+        account = accountRepository.save (account);
+        accountDTO = accountMapper.toDataTransferObject (account);
+        return accountDTO;
     }
 }
