@@ -5,7 +5,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -27,8 +26,8 @@ public class AccountRepository {
             db.update("insert into account (id, date_created, date_modified, alias, name, surname, email) values (?, ?, ?, ?, ?, ?, ?)", account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail());
             return account;
         } else {
-            db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ?)", Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail());
-            return account;
+            db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getId());
+            return findOriginalAccountById(account.getId());
         }
     }
 
@@ -42,14 +41,9 @@ public class AccountRepository {
         }
     }
 
-    public Optional<Account> findAccountOriginalById(Long id) {
-        try{
-            Account account = db.queryForObject("select * from account where id = ?", this::map, id);
-            return Optional.ofNullable(account);
-        } catch (EmptyResultDataAccessException e){
-            System.out.println("FOUND ERROR\nUtente con id = " + id);
-            return Optional.empty();
-        }
+    private Account findOriginalAccountById(Long id) {
+        Account account = db.queryForObject("select * from account where id = ?", this::map, id);
+        return account;
     }
 
     public Optional<Account> deleteAccount(Long id){

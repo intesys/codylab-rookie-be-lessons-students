@@ -59,7 +59,6 @@ public class AccountService {
         Optional<Account> account = accountRepository.deleteAccount(id);
         Optional<AccountDTO> accountDTO = account.map(accountMapper::toDataTransferObject);
 
-        AccountDTO result = accountDTO.orElseThrow(() -> new NotFound(Account.class, id));
-        return result;
+        return accountDTO.orElseThrow(() -> new NotFound(Account.class, id));
     }
 }
