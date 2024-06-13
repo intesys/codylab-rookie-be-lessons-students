@@ -1,0 +1,84 @@
+package it.intesys.rookie.domain;
+
+import java.time.Instant;
+
+public class Account {
+    private long id;
+    private Instant dateCreated;
+    private Instant dateModified;
+    private String name;
+    private String surname;
+    private String alias;
+    private String email;
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "Id=" + id +
+                ", dateCreated=" + dateCreated +
+                ", dateModified=" + dateModified +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", alias='" + alias + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long Id) {
+        this.id = Id;
+    }
+
+    public Instant getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(Instant dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public Instant getDateModified() {
+        return dateModified;
+    }
+
+    public void setDateModified(Instant dateModified) {
+        this.dateModified = dateModified;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+
+}
