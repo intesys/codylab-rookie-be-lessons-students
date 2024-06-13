@@ -31,7 +31,7 @@ public class AccountService {
         return accountDTO;
     }
     public AccountDTO  getAccount(Long id){
-        Optional<Account> account = accountRepository.findById (id);
+        Optional<Account> account = accountRepository.findById(id);
         Optional<AccountDTO> accountDTO = account.map(accountMapper::toDataTransferObject);
         return accountDTO.orElseThrow(() -> new NotFound(Account.class, id));
 
@@ -44,19 +44,19 @@ public class AccountService {
         return accountDTO.orElseThrow(() -> new NotFound(Account.class, id));
 
     }
-    public AccountDTO  updateAccount(Long id){
-        if(accountRepository.findById(id).isEmpty()){
+    public AccountDTO updateAccount(Long id, AccountDTO accountDTO) {
+        if (accountRepository.findById (id).isEmpty()) {
             throw new NotFound(Account.class, id);
         }
 
-        Instant now  = Instant.now();
+        accountDTO.setId(id);
+        Account account = accountMapper.toEntity (accountDTO);
+
+        Instant now = Instant.now();
         account.setDateModified(now);
-        Account account
 
         account = accountRepository.save (account);
-        accountDTO = accountMapper.toDataTransferObject(account);
+        accountDTO = accountMapper.toDataTransferObject (account);
         return accountDTO;
-
-
     }
 }

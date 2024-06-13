@@ -40,8 +40,8 @@ public class AccountApi {
         }
     }
     @PutMapping(API_ACCOUNT_ID)
-    AccountDTO updateAccount (@RequestBody AccountDTO accountDTO){
-        return accountService.updateAccount(accountDTO);
+    AccountDTO updateAccount (@PathVariable Long id, @RequestBody AccountDTO accountDTO){
+        return accountService.updateAccount(id, accountDTO);
     }
 
 

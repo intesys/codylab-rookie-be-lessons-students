@@ -3,7 +3,7 @@ package it.intesys.rookie.domain;
 import java.time.Instant;
 
 public class Account {
-    private long id;
+    private Long id;
     private Instant dateCreated;
     private Instant dateModified;
     private String name;
@@ -24,11 +24,11 @@ public class Account {
                 '}';
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long Id) {
+    public void setId(Long Id) {
         this.id = Id;
     }
 

@@ -3,7 +3,7 @@ package it.intesys.rookie.dto;
 import java.time.Instant;
 
 public class AccountDTO {
-    private long id;
+    private Long id;
     private Instant dateCreated;
     private Instant dateModified;
     private String name;
@@ -12,11 +12,11 @@ public class AccountDTO {
     private String email;
 
     //set e get
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long Id) {
+    public void setId(Long Id) {
         this.id = Id;
     }
 

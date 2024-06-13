@@ -1,5 +1,4 @@
 package it.intesys.rookie.repository;
-
 import it.intesys.rookie.domain.Account;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,18 +18,18 @@ public class AccountRepository {
     }
 
     public Account save(Account account) {
-        if(account.getId() == null){
+        if (account.getId() == null) {
             Long id = db.queryForObject("select nextval('account_sequence')", Long.class);
             account.setId(id);
-            db.update("insert into account (id, date_created, date_modified, alias, name, surname, email)"+
-                    "values(?, ?, ?, ?, ?, ?, ?)",account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail());
+            db.update ("insert into account (id, date_created, date_modified, alias, name, surname, email) " +
+                            "values (?, ?, ?, ?, ?, ?, ?)", account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()),
+                    account.getAlias(), account.getName(), account.getSurname(), account.getEmail());
             return account;
-        }else{
-            db.update("update accunt set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ? ",account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail());
-            return findAccById(account.getId());
+        } else {
+            db.update ("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()),
+                    account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getId());
+            return findAccountById(account.getId());
         }
-
-
     }
 
     public Optional<Account> findById(Long id) {
@@ -43,15 +42,9 @@ public class AccountRepository {
         }
 
     }
-    public Optional<Account> findAccById(Long id) {
-        try {
-            Account account = db.queryForObject("select * from account where id = ?", this::map, id);
-            return Optional.ofNullable(account);
-        }catch (EmptyResultDataAccessException e){
-            return Optional.empty();
-
-        }
-
+    private Account findAccountById(Long id) {
+        Account account = db.queryForObject("select * from account where id = ?", this::map, id);
+        return account;
     }
     public Optional<Account> deleteById(Long id) {
         try {
