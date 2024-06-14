@@ -1,10 +1,16 @@
 package it.intesys.rookie.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.time.Instant;
 
 public class Account {
     private Long id;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Instant dateCreated, dateModified;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String alias, name, surname, email;
 
     @Override
