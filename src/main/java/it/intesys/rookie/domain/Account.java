@@ -13,6 +13,9 @@ public class Account {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String alias, name, surname, email;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Status status;
+
     @Override
     public String toString() {
         return "Account{" +
@@ -80,5 +83,13 @@ public class Account {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }

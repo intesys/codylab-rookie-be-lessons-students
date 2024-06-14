@@ -1,6 +1,7 @@
 package it.intesys.rookie.service;
 
 import it.intesys.rookie.domain.Account;
+import it.intesys.rookie.domain.Status;
 import it.intesys.rookie.dto.AccountDTO;
 import it.intesys.rookie.dto.AccountMapper;
 import it.intesys.rookie.repository.AccountRepository;
@@ -27,6 +28,7 @@ public class AccountService {
         Instant now = Instant.now();
         account.setDateCreated(now);
         account.setDateModified(now);
+        account.setStatus(Status.REGISTERED);
 
         account = accountRepository.save(account);
         accountDTO = accountMapper.toDataTransferObject(account);
