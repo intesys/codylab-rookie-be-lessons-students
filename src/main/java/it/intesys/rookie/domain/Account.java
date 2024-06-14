@@ -6,6 +6,7 @@ public class Account {
     private Long id;
     private Instant dateCreated, dateModified;
     private String alias, name, surname, email;
+    private Status status;
 
     @Override
     public String toString() {
@@ -74,5 +75,13 @@ public class Account {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
