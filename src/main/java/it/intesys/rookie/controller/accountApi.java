@@ -30,5 +30,17 @@ public class accountApi {
         }
     }
 
+    @PutMapping (API_ACCOUNT_ID)
+    AccountDTO updateAccount (@PathVariable Long id, @RequestBody AccountDTO accountdto){
+        return accountservice.updateAccount (id, accountdto);
+    }
+
+    @DeleteMapping (API_ACCOUNT_ID)
+    ResponseEntity<Void> deleteAccount (@PathVariable Long id) {
+        try{
+
+        }
+    }
+
 
 }

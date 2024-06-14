@@ -39,4 +39,11 @@ public class AccountService {
         return accountDTO.orElseThrow(() -> new NotFound(Account.class, id));
     }
 
+
+    public void deleteAccount (Long id) {
+        if(accountRepository.findById (id).isEmpty()){
+            throw new NotFound(gyAccount.class, id);
+        }
+        accountRepository.delete (id);
+    }
 }

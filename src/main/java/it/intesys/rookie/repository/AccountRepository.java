@@ -19,13 +19,19 @@ public class AccountRepository {
     }
 
     public Account save(Account account) {
-        Long id = db.queryForObject("select nextval('account_sequence')", Long.class);
-        account.setId(id);
-
-        db.update ("insert into account (id, date_created, date_modified, name, surname, email) " +
-        "values (?,?,?,?,?,?)", account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()),
-                account.getName(), account.getSurname(), account.getEmail());
-        return account;
+        if(account.getId() == null) {
+            Long id = db.queryForObject("select nextval('account_sequence')", Long.class);
+            account.setId(id);
+            db.update("insert into account (id, date_created, date_modified, name, surname, email) " +
+                            "values (?,?,?,?,?,?)", account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()),
+                    account.getName(), account.getSurname(), account.getEmail());
+            return account;
+        } else{
+            db.update("update account set date_modified = ?, name = ?, surname = ?, email = ? " +
+                    "where id = ?", account.getDateModified(), account.getName(),
+                    account.getSurname(), account.getEmail(), account.getId());
+            return findOriginalAccountById(account.getId());
+        }
     }
 
     public Optional<Account> findById(Long id) {
@@ -33,8 +39,13 @@ public class AccountRepository {
             Account account = db.queryForObject("select * from account where id = ?", this::map, id);
             return Optional.ofNullable(account);
         } catch (EmptyResultDataAccessException e) {
-        } return Optional.empty();
+            return Optional.empty();
+        }
 
+    }
+
+    private Account findOriginalAccountById(Long id){
+        return db.queryForObject("select * from account where id = ?", this::map, id);
     }
 
     private Account map(ResultSet resultSet, int i) throws SQLException {
@@ -46,5 +57,12 @@ public class AccountRepository {
         account.setSurname(resultSet.getString("surname"));
         account.setEmail(resultSet.getString("email"));
         return account;
+    }
+
+    public void delete(Long id) {
+       int updateCount  = db.update("delete from account where id= ?", id);
+       if (updateCount != 1){
+           throw new IllegalAccessException()
+       }
     }
 }
