@@ -34,4 +34,14 @@ public class AccountApi {
     AccountDTO updateAccount (@PathVariable Long id, @RequestBody AccountDTO account) {
         return accountService.updateAccount(id, account);
     }
+
+    @DeleteMapping(API_ACCOUNT + "/{id}")
+    ResponseEntity<AccountDTO> deleteAccount (@PathVariable Long id) {
+        try {
+            accountService.deleteAccount(id);
+            return ResponseEntity.ok().build();
+        } catch (NotFound e) {
+            return ResponseEntity.notFound().header("X-rookie-error", e.getMessage()).build();
+        }
+    }
 }

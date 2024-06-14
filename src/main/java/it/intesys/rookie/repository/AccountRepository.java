@@ -26,7 +26,10 @@ public class AccountRepository {
             db.update("insert into account (id, date_created, date_modified, alias, name, surname, email) values (?, ?, ?, ?, ?, ?, ?)", account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail());
             return account;
         } else {
-            db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getId());
+            int updateCount = db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getId());
+            if(updateCount != 1){
+                throw new IllegalStateException(String.format("Update count %d, excepted 1", updateCount));
+            }
             return findOriginalAccountById(account.getId());
         }
     }
@@ -46,16 +49,12 @@ public class AccountRepository {
         return account;
     }
 
-    public Optional<Account> deleteAccount(Long id){
-        try{
-            Account account = db.queryForObject("select * from account where id = ?", this::map, id);
-            db.update("delete from account where id = ?", id);
-            System.out.println("DELETE SUCCESS\nUtente con id = " + id);
-            return Optional.ofNullable(account);
-        } catch (EmptyResultDataAccessException e){
-            System.out.println("DELETE ERROR\nUtente con id = " + id);
-            return Optional.empty();
-        }
+    public void deleteAccount(Long id){
+        int updateCount = db.update("delete from account where id = ?", id);
+
+        if(updateCount != 1){
+            throw new IllegalStateException(String.format("Update count %d, excepted 1", updateCount));
+        } else System.out.println("DELETE SUCCESS\nUtente con id = " + id);
     }
 
     private Account map(ResultSet resultSet, int i) throws SQLException {

@@ -55,10 +55,11 @@ public class AccountService {
         return accountDTO;
     }
 
-    public AccountDTO deleteAccount(Long id){
-        Optional<Account> account = accountRepository.deleteAccount(id);
-        Optional<AccountDTO> accountDTO = account.map(accountMapper::toDataTransferObject);
+    public void deleteAccount(Long id){
+        if(accountRepository.findById(id).isEmpty()){
+            throw new NotFound(Account.class, id);
+        }
 
-        return accountDTO.orElseThrow(() -> new NotFound(Account.class, id));
+        accountRepository.deleteAccount(id);
     }
 }
