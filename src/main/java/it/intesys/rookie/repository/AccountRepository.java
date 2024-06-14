@@ -27,8 +27,10 @@ public class AccountRepository {
                     account.getAlias(), account.getName(), account.getSurname(), account.getEmail());
             return account;
         } else {
-            db.update ("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()),
+            int updateCount = db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()),
                     account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getId());
+            if (updateCount != 1)
+                throw new IllegalStateException(String.format("Update count %d, expected 1", updateCount));
             return findAccountById(account.getId());
         }
     }
@@ -57,5 +59,11 @@ public class AccountRepository {
         account.setSurname(resultSet.getString("surname"));
         account.setEmail(resultSet.getString("email"));
         return account;
+    }
+
+    public void delete(Long id) {
+        int updateCount = db.update("delete from account where id = ?", id);
+        if (updateCount != 1)
+            throw new IllegalStateException(String.format("Update count %d, expected 1", updateCount));
     }
 }

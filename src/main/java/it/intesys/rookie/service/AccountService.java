@@ -52,4 +52,12 @@ public class AccountService {
         accountDTO = accountMapper.toDataTransferObject (account);
         return accountDTO;
     }
+
+    public void deleteAccount(Long id) {
+        if (accountRepository.findById (id).isEmpty()) {
+            throw new NotFound(Account.class, id);
+        }
+
+        accountRepository.delete (id);
+    }
 }
