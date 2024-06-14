@@ -56,6 +56,7 @@ public class AccountService {
     public void deleteAccount(Long id) {
         if (accountRepository.findById (id).isEmpty()) {
             throw new NotFound(Account.class, id);
+
         }
 
         accountRepository.delete(id);
