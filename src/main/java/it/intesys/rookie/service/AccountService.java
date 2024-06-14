@@ -24,41 +24,41 @@ public class AccountService {
     }
 
     public AccountDTO createAccount(AccountDTO accountDTO) {
-        Account account = accountMapper.toEntity (accountDTO);
+        Account account = accountMapper.toEntity(accountDTO);
 
         Instant now = Instant.now();
         account.setDateCreated(now);
         account.setDateModified(now);
 
-        account = accountRepository.save (account);
-        accountDTO = accountMapper.toDataTransferObject (account);
+        account = accountRepository.save(account);
+        accountDTO = accountMapper.toDataTransferObject(account);
         return accountDTO;
     }
 
     public AccountDTO getAccount(Long id) {
-        Optional<Account> account = accountRepository.findById (id);
+        Optional<Account> account = accountRepository.findById(id);
         Optional<AccountDTO> accountDTO = account.map(accountMapper::toDataTransferObject);
         return accountDTO.orElseThrow(() -> new NotFound(Account.class, id));
     }
 
     public AccountDTO updateAccount(Long id, AccountDTO accountDTO) {
-        if (accountRepository.findById (id).isEmpty()) {
+        if (accountRepository.findById(id).isEmpty()) {
             throw new NotFound(Account.class, id);
         }
 
         accountDTO.setId(id);
-        Account account = accountMapper.toEntity (accountDTO);
+        Account account = accountMapper.toEntity(accountDTO);
 
         Instant now = Instant.now();
         account.setDateModified(now);
 
-        account = accountRepository.save (account);
-        accountDTO = accountMapper.toDataTransferObject (account);
+        account = accountRepository.save(account);
+        accountDTO = accountMapper.toDataTransferObject(account);
         return accountDTO;
     }
 
     public void deleteAccount(Long id) {
-        if (accountRepository.findById (id).isEmpty()) {
+        if (accountRepository.findById(id).isEmpty()) {
             throw new NotFound(Account.class, id);
         }
 
@@ -66,8 +66,7 @@ public class AccountService {
     }
 
     public Page<AccountDTO> getAccounts(String filter, Pageable pageable) {
-    Page<Account> accountRepository.findAll();
-        getAccounts().map(accountMapper::toDataTransferObject);
+        Page<Account> accounts = accountRepository.findAll(filter, pageable);
+        return accounts.map(accountMapper::toDataTransferObject);
     }
-
 }

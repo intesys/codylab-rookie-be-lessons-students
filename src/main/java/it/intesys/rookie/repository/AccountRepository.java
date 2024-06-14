@@ -2,6 +2,8 @@ package it.intesys.rookie.repository;
 
 import it.intesys.rookie.domain.Account;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,12 +28,12 @@ public class AccountRepository {
         if (account.getId() == null) {
             Long id = db.queryForObject("select nextval('account_sequence')", Long.class);
             account.setId(id);
-            db.update ("insert into account (id, date_created, date_modified, alias, name, surname, email) " +
+            db.update("insert into account (id, date_created, date_modified, alias, name, surname, email) " +
                             "values (?, ?, ?, ?, ?, ?, ?)", account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()),
                     account.getAlias(), account.getName(), account.getSurname(), account.getEmail());
             return account;
         } else {
-            int updateCount = db.update ("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()),
+            int updateCount = db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()),
                     account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getId());
             if (updateCount != 1)
                 throw new IllegalStateException(String.format("update count %d, expected 1"));
@@ -70,23 +72,26 @@ public class AccountRepository {
         if (updateCount != 1)
             throw new IllegalStateException(String.format("update count %d, expected 1"));
     }
-    private void findAll(String filter, Pageable pageable) {
+
+    public Page<Account> findAll(String filter, Pageable pageable) {
         StringBuilder queryBuffer = new StringBuilder("select * from account");
         List<Object> parameters = new ArrayList<>();
         if (filter != null && !filter.isBlank()) {
             queryBuffer.append("where name like ? or surname like ? ");
             String like = "%" + filter + "%";
             for (int i = 0; i < 4; i++) parameters.add(like);
-        String query= pagingQuery(queryBuffer, pageable);
-        List<Account> accounts= db.query(query, this::map, parameters.toArray());
         }
+        String query = pagingQuery(queryBuffer, pageable);
+        List<Account> accounts = db.query(query, this::map, parameters.toArray());
+        return new PageImpl<>(accounts, pageable, 0);
     }
+
     protected String pagingQuery(StringBuilder query, Pageable pageable) {
         String orderSep = "";
         Sort sort = pageable.getSort();
         if (!sort.isEmpty()) {
             query.append(" order by ");
-            for (Sort.Order order: sort) {
+            for (Sort.Order order : sort) {
                 query.append(orderSep)
                         .append(order.getProperty())
                         .append(' ')

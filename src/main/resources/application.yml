@@ -3,7 +3,7 @@ spring:
   #docker run --env=POSTGRES_PASSWORD=admin -p 5433:5432 -d postgres:latest
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/rookielessons
+    url: jdbc:postgresql://localhost:5432/rookiechat
     username: postgres
     password: Leoncino2006
 
