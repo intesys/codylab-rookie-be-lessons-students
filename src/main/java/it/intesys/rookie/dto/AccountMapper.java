@@ -1,4 +1,5 @@
 package it.intesys.rookie.dto;
+import java.time.Instant;
 
 import it.intesys.rookie.domain.Account;
 import org.springframework.stereotype.Component;
@@ -6,10 +7,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class AccountMapper {
     public Account toEntity(AccountDTO accountDTO){
-        Account account  = new Account();
+        Account account = new Account();
         account.setId(accountDTO.getId());
-        account.setDataCreated(accountDTO.getDataCreated());
-        account.setDataModified(accountDTO.getDataModified());
+        account.setDateCreated(accountDTO.getDateCreated());
+        account.setDateModified(accountDTO.getDateModified());
         account.setAlias(accountDTO.getAlias());
         account.setName(accountDTO.getName());
         account.setSurname(accountDTO.getSurname());
@@ -17,16 +18,15 @@ public class AccountMapper {
         return account;
     }
 
-    public AccountDTO toDataTransferObject(Account account) {
+    public AccountDTO toDataTransferObject(Account account){
         AccountDTO accountDTO = new AccountDTO();
         accountDTO.setId(account.getId());
-        accountDTO.setDataCreated(account.getDataCreated());
-        accountDTO.setDataModified(account.getDataModified());
+        accountDTO.setDateCreated(account.getDateCreated());
+        accountDTO.setDateModified(account.getDateModified());
         accountDTO.setAlias(account.getAlias());
         accountDTO.setName(account.getName());
         accountDTO.setSurname(account.getSurname());
         accountDTO.setEmail(account.getEmail());
         return accountDTO;
-
     }
 }

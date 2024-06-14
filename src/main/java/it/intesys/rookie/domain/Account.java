@@ -4,12 +4,21 @@ import java.time.Instant;
 
 public class Account {
     private Long id;
-    private Instant dataCreated;
-    private Instant dataModified;
-    private String alias;
-    private String name;
-    private String surname;
-    private String email;
+    private Instant dateCreated, dateModified;
+    private String alias, name, surname, email;
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "id=" + id +
+                ", dateCreated=" + dateCreated +
+                ", dateModified=" + dateModified +
+                ", alias='" + alias + '\'' +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 
     public Long getId() {
         return id;
@@ -19,20 +28,20 @@ public class Account {
         this.id = id;
     }
 
-    public Instant getDataCreated() {
-        return dataCreated;
+    public Instant getDateCreated() {
+        return dateCreated;
     }
 
-    public void setDataCreated(Instant dataCreated) {
-        this.dataCreated = dataCreated;
+    public void setDateCreated(Instant dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
-    public Instant getDataModified() {
-        return dataModified;
+    public Instant getDateModified() {
+        return dateModified;
     }
 
-    public void setDataModified(Instant dataModified) {
-        this.dataModified = dataModified;
+    public void setDateModified(Instant dateModified) {
+        this.dateModified = dateModified;
     }
 
     public String getAlias() {

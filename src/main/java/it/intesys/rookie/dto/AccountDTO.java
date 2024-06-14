@@ -1,15 +1,28 @@
 package it.intesys.rookie.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.time.Instant;
 
 public class AccountDTO {
     private Long id;
-    private Instant dataCreated;
-    private Instant dataModified;
-    private String alias;
-    private String name;
-    private String surname;
-    private String email;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Instant dateCreated, dateModified;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String alias, name, surname, email;
+
+    @Override
+    public String toString() {
+        return "AccountDTO{" +
+                "id=" + id +
+                ", dateCreated=" + dateCreated +
+                ", dateModified=" + dateModified +
+                ", alias='" + alias + '\'' +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 
     public Long getId() {
         return id;
@@ -19,20 +32,20 @@ public class AccountDTO {
         this.id = id;
     }
 
-    public Instant getDataCreated() {
-        return dataCreated;
+    public Instant getDateCreated() {
+        return dateCreated;
     }
 
-    public void setDataCreated(Instant dataCreated) {
-        this.dataCreated = dataCreated;
+    public void setDateCreated(Instant dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
-    public Instant getDataModified() {
-        return dataModified;
+    public Instant getDateModified() {
+        return dateModified;
     }
 
-    public void setDataModified(Instant dataModified) {
-        this.dataModified = dataModified;
+    public void setDateModified(Instant dateModified) {
+        this.dateModified = dateModified;
     }
 
     public String getAlias() {
