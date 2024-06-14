@@ -31,9 +31,19 @@ public class AccountApi {
             return ResponseEntity.notFound().header("x-rookie-error", e.getMessage()).build();
         }
     }
-    @PutMapping
+    @PutMapping(API_ACCOUNT_ID)
     public AccountDTO updateAccount(@PathVariable Long id, @RequestBody AccountDTO accountDTO){
         return accountService.updateAccount(id, accountDTO);
+    }
+
+    @DeleteMapping(API_ACCOUNT_ID)
+    public ResponseEntity<Void> deleteAccount(@PathVariable Long id){
+        try {
+            accountService.deleteAccount(id);
+            return ResponseEntity.ok().build();
+        } catch (NotFound e){
+            return ResponseEntity.notFound().header("x-rookie-error", e.getMessage()).build();
+        }
     }
 }
 
