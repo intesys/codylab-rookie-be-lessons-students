@@ -1,12 +1,19 @@
 package it.intesys.rookie.repository;
 import it.intesys.rookie.domain.Account;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -26,10 +33,13 @@ public class AccountRepository {
                     account.getAlias(), account.getName(), account.getSurname(), account.getEmail());
             return account;
         } else {
-            db.update ("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()),
+            int updateCount = db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()),
                     account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getId());
+            if (updateCount != 1)
+                throw new IllegalStateException(String.format("Update count %d, expected 1", updateCount));
             return findAccountById(account.getId());
         }
+
     }
 
     public Optional<Account> findById(Long id) {
@@ -46,15 +56,10 @@ public class AccountRepository {
         Account account = db.queryForObject("select * from account where id = ?", this::map, id);
         return account;
     }
-    public Optional<Account> deleteById(Long id) {
-        try {
-            Account account = db.queryForObject("select * from account where id = ?", this::map, id);
-            db.update("delete from account where id = ?",id);
-            return Optional.ofNullable(account);
-        }catch (EmptyResultDataAccessException e){
-            return Optional.empty();
-
-        }
+    public void delete(Long id) {
+        int updateCount = db.update("delete from account where id = ?", id);
+        if (updateCount != 1)
+            throw new IllegalStateException(String.format("Update count %d, expected 1", updateCount));
     }
 
     private Account map(ResultSet resultSet, int i) throws SQLException {
@@ -69,4 +74,39 @@ public class AccountRepository {
         return account;
     }
 
+    public Page<Account> findAll(String filter, Pageable pageable) {
+        StringBuilder queryBuffer = new StringBuilder("select * from account ");
+        List<Object> parameters = new ArrayList<>();
+        if(filter != null && !filter.isBlank()){
+            queryBuffer.append("where name like ? or surname like ? or email like ? or alias like ?");
+            String like = "%" + filter + "%";
+            for (int i =0; i<4; i++) parameters.add(like);
+        }
+        String query = pagingQuery(queryBuffer, pageable);
+        List<Account> accounts = db.query(query, this::map, parameters.toArray());
+        return new PageImpl<>(accounts, pageable, 0);
+    }
+    protected String pagingQuery(StringBuilder query, Pageable pageable) {
+        String orderSep = "";
+        Sort sort = pageable.getSort();
+        if (!sort.isEmpty()) {
+            query.append(" order by ");
+            for (Sort.Order order: sort) {
+                query.append(orderSep)
+                        .append(order.getProperty())
+                        .append(' ')
+                        .append(order.getDirection().isDescending() ? "desc" : "")
+                        .append(' ');
+                orderSep = ", ";
+            }
+        }
+
+        query.append("limit ")
+                .append(pageable.getPageSize())
+                .append(' ')
+                .append("offset ")
+                .append(pageable.getOffset());
+
+        return query.toString();
+    }
 }

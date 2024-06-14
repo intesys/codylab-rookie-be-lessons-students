@@ -3,6 +3,8 @@ import it.intesys.rookie.domain.Account;
 import it.intesys.rookie.dto.AccountDTO;
 import it.intesys.rookie.dto.AccountMapper;
 import it.intesys.rookie.repository.AccountRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -38,12 +40,14 @@ public class AccountService {
 
     }
 
-    public AccountDTO delAccount(Long id) {
-        Optional<Account> account = accountRepository.deleteById(id);
-        Optional<AccountDTO> accountDTO = account.map(accountMapper::toDataTransferObject);
-        return accountDTO.orElseThrow(() -> new NotFound(Account.class, id));
+    public void delAccount(Long id) {
+        if (accountRepository.findById (id).isEmpty()) {
+            throw new NotFound(Account.class, id);
+        }
 
+        accountRepository.delete (id);
     }
+
     public AccountDTO updateAccount(Long id, AccountDTO accountDTO) {
         if (accountRepository.findById (id).isEmpty()) {
             throw new NotFound(Account.class, id);
@@ -59,4 +63,10 @@ public class AccountService {
         accountDTO = accountMapper.toDataTransferObject (account);
         return accountDTO;
     }
+
+    public Page<AccountDTO> getAccounts(String filter, Pageable pageable) {
+        Page<Account> accounts = accountRepository.findAll (filter, pageable);
+        return accounts.map(accountMapper::toDataTransferObject);
+    }
+
 }
