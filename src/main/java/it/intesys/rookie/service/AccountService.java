@@ -4,6 +4,8 @@ import it.intesys.rookie.domain.Account;
 import it.intesys.rookie.dto.AccountDTO;
 import it.intesys.rookie.dto.AccountMapper;
 import it.intesys.rookie.repository.AccountRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -61,5 +63,10 @@ public class AccountService {
         }
 
         accountRepository.deleteAccount(id);
+    }
+
+    public Page<AccountDTO> getAccounts(String filter, Pageable pageable) {
+        Page<Account> accounts = accountRepository.findAll (filter, pageable);
+        return accounts.map(accountMapper::toDataTransferObject);
     }
 }

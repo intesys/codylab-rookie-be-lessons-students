@@ -1,10 +1,14 @@
 package it.intesys.rookie.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.time.Instant;
 
 public class AccountDTO {
     private Long id;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Instant dateCreated, dateModified;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String alias, name, surname, email;
 
     @Override
