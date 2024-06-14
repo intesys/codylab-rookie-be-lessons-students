@@ -3,6 +3,7 @@ package it.intesys.rookie.controller;
 import it.intesys.rookie.dto.AccountDTO;
 import it.intesys.rookie.service.AccountService;
 import it.intesys.rookie.service.NotFound;
+import jakarta.annotation.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -55,7 +56,7 @@ public class AccountApi {
     }
 
     @PostMapping(API_ACCOUNT_FILTER)
-    ResponseEntity<List<AccountDTO>> getAccounts(@RequestParam ("page") int page, @RequestParam ("size") int size, @RequestParam ("sort") String sort, @RequestBody String filter){
+    ResponseEntity<List<AccountDTO>> getAccounts(@RequestParam ("page") int page, @RequestParam ("size") int size, @RequestParam ("sort") String sort, @RequestBody @Nullable String filter){
         Pageable pageable = pageableOf(page, size, sort);
         Page<AccountDTO> accounts = accountService.getAccounts(filter, pageable);
         HttpHeaders httpHeaders = paginationHeaders(accounts, API_ACCOUNT_FILTER);
