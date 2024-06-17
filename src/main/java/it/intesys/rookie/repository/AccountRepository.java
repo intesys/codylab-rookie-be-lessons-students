@@ -6,7 +6,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -18,12 +17,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class AccountRepository {
-
-    private final JdbcTemplate db;
-
+public class AccountRepository extends RookieRepository {
     public AccountRepository(JdbcTemplate db){
-        this.db = db;
+        super(db);
     }
 
     public Account save(Account account) {
@@ -51,7 +47,7 @@ public class AccountRepository {
             Account account = db.queryForObject("select * from account where id = ?", this::map, id);
             return Optional.ofNullable(account);
         } catch (EmptyResultDataAccessException e){
-            System.out.println("FOUND ERROR\nUtente con id = " + id);
+            logger.warn(e.getMessage());
             return Optional.empty();
         }
     }
@@ -97,27 +93,4 @@ public class AccountRepository {
         return new PageImpl<>(accounts, pageable, 0);
     }
 
-    protected String pagingQuery(StringBuilder query, Pageable pageable) {
-        String orderSep = "";
-        Sort sort = pageable.getSort();
-        if (!sort.isEmpty()) {
-            query.append(" order by ");
-            for (Sort.Order order: sort) {
-                query.append(orderSep)
-                        .append(order.getProperty())
-                        .append(' ')
-                        .append(order.getDirection().isDescending() ? "desc" : "")
-                        .append(' ');
-                orderSep = ", ";
-            }
-        }
-
-        query.append("limit ")
-                .append(pageable.getPageSize())
-                .append(' ')
-                .append("offset ")
-                .append(pageable.getOffset());
-
-        return query.toString();
-    }
 }
