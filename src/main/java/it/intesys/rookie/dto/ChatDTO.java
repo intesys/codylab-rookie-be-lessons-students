@@ -1,10 +1,9 @@
 package it.intesys.rookie.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.time.Instant;
 
-public class AccountDTO {
+public class ChatDTO {
+
     private Long id;
     private Instant dateCreated;
 

@@ -13,11 +13,11 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Service
-public class AccountService {
+public class ChatService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
 
-    public AccountService(AccountRepository accountRepository, AccountMapper accountMapper) {
+    public ChatService(AccountRepository accountRepository, AccountMapper accountMapper) {
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
     }

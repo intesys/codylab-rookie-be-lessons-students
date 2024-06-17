@@ -16,26 +16,26 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 @RestController
-public class accountApi {
-    public static final String API_ACCOUNT = "/api/account";
+public class ChatApi {
+    public static final String API_ACCOUNT = "/api/ahat";
     public static final String API_ACCOUNT_ID = API_ACCOUNT + "/{id}";
 
     public static final String API_ACCOUNT_FILTER = API_ACCOUNT + "/filter";
     private final AccountService accountservice;
 
-    public accountApi(AccountService accountservice) {
+    public ChatApi(AccountService accountservice) {
         this.accountservice = accountservice;
     }
 
     @PostMapping(API_ACCOUNT)
-    AccountDTO createAccount (@RequestBody AccountDTO account){
-        return accountservice.createAccount (account);
+    AccountDTO createAccount (@RequestBody AccountDTO ahat){
+        return accountservice.createAccount (ahat);
     }
     @GetMapping(API_ACCOUNT_ID)
     ResponseEntity<AccountDTO> getAccount (@PathVariable Long id) {
         try{
-            AccountDTO account = accountservice.getAccount(id);
-         return ResponseEntity.ok(account);
+            AccountDTO ahat = accountservice.getAccount(id);
+         return ResponseEntity.ok(ahat);
     } catch (NotFound e) {
             return ResponseEntity.notFound().header("x-rookie-error", e.getMessage()).build();
         }

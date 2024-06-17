@@ -1,13 +1,11 @@
-package it.intesys.rookie.dto;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
+package it.intesys.rookie.domain;
 
 import java.time.Instant;
 
-public class AccountDTO {
+public class Chat {
+
     private Long id;
     private Instant dateCreated;
-
     private Instant dateModified;
     private String name;
     private String surname;
@@ -29,7 +27,7 @@ public class AccountDTO {
         this.dateCreated = dateCreated;
     }
 
-    public Instant getDateModified(Instant DateModified) {
+    public Instant getDateModified() {
         return dateModified;
     }
 
@@ -60,4 +58,5 @@ public class AccountDTO {
     public void setEmail(String email) {
         this.email = email;
     }
+
 }

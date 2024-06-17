@@ -1,6 +1,6 @@
 package it.intesys.rookie.repository;
 
-import it.intesys.rookie.domain.Account;
+import it.intesys.rookie.domain.Chat;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,62 +17,62 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class AccountRepository {
+public class ChatRepository {
     private final JdbcTemplate db;
 
-    public AccountRepository(JdbcTemplate db) {
+    public ChatRepository(JdbcTemplate db) {
         this.db = db;
     }
 
-    public Account save(Account account) {
-        if(account.getId() == null) {
+    public Chat save(Chat chat) {
+        if(chat.getId() == null) {
             Long id = db.queryForObject("select nextval('account_sequence')", Long.class);
-            account.setId(id);
-            db.update("insert into account (id, date_created, date_modified, name, surname, email) " +
-                            "values (?,?,?,?,?,?)", account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()),
-                    account.getName(), account.getSurname(), account.getEmail());
-            return account;
+            chat.setId(id);
+            db.update("insert into chat (id, date_created, date_modified, name, surname, email) " +
+                            "values (?,?,?,?,?,?)", chat.getId(), Timestamp.from(chat.getDateCreated()), Timestamp.from(chat.getDateModified()),
+                    chat.getName(), chat.getSurname(), chat.getEmail());
+            return chat;
         } else{
-            db.update("update account set date_modified = ?, name = ?, surname = ?, email = ? " +
-                    "where id = ?", Timestamp.from(account.getDateModified()), account.getName(),
-                    account.getSurname(), account.getEmail(), account.getId());
-            return findOriginalAccountById(account.getId());
+            db.update("update chat set date_modified = ?, name = ?, surname = ?, email = ? " +
+                    "where id = ?", Timestamp.from(chat.getDateModified()), chat.getName(),
+                    chat.getSurname(), chat.getEmail(), chat.getId());
+            return findOriginalAccountById(chat.getId());
         }
     }
 
-    public Optional<Account> findById(Long id) {
+    public Optional<Chat> findById(Long id) {
         try {
-            Account account = db.queryForObject("select * from account where id = ?", this::map, id);
-            return Optional.ofNullable(account);
+            Chat chat = db.queryForObject("select * from chat where id = ?", this::map, id);
+            return Optional.ofNullable(chat);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
 
     }
 
-    private Account findOriginalAccountById(Long id){
-        return db.queryForObject("select * from account where id = ?", this::map, id);
+    private Chat findOriginalAccountById(Long id){
+        return db.queryForObject("select * from chat where id = ?", this::map, id);
     }
 
-    private Account map(ResultSet resultSet, int i) throws SQLException {
-        Account account = new Account();
-        account.setId(resultSet.getLong("id"));
-        account.setDateCreated(Optional.ofNullable(resultSet.getTimestamp("date_created")).map(Timestamp::toInstant).orElse(null));
-        account.setDateModified(resultSet.getTimestamp("date_Modified").toInstant());
-        account.setName(resultSet.getString("name"));
-        account.setSurname(resultSet.getString("surname"));
-        account.setEmail(resultSet.getString("email"));
-        return account;
+    private Chat map(ResultSet resultSet, int i) throws SQLException {
+        Chat chat = new Chat();
+        chat.setId(resultSet.getLong("id"));
+        chat.setDateCreated(Optional.ofNullable(resultSet.getTimestamp("date_created")).map(Timestamp::toInstant).orElse(null));
+        chat.setDateModified(resultSet.getTimestamp("date_Modified").toInstant());
+        chat.setName(resultSet.getString("name"));
+        chat.setSurname(resultSet.getString("surname"));
+        chat.setEmail(resultSet.getString("email"));
+        return chat;
     }
 
     public void delete(Long id){
-       int updateCount  = db.update("delete from account where id= ?", id);
+       int updateCount  = db.update("delete from chat where id= ?", id);
        if (updateCount != 1)
            throw new IllegalStateException(String.format("update count %d, expected 1", id));
     }
 
-    public Page<Account> findAll(String filter, Pageable pageable){
-        StringBuilder queryBuffer = new StringBuilder("select * from account");
+    public Page<Chat> findAll(String filter, Pageable pageable){
+        StringBuilder queryBuffer = new StringBuilder("select * from chat");
 
         List<Object> parameters = new ArrayList<>();
         if(filter != null && !filter.isBlank()){
@@ -83,7 +83,7 @@ public class AccountRepository {
             }
         }
             String query = pagingQuery(queryBuffer, pageable);
-        List<Account> accounts = db.query(queryBuffer.toString(), this::map, parameters.toArray());
+        List<Chat> accounts = db.query(queryBuffer.toString(), this::map, parameters.toArray());
         return new PageImpl<>(accounts, pageable, 0);
 
     }
