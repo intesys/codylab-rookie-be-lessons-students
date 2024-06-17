@@ -2,13 +2,10 @@ package it.intesys.rookie.repository;
 
 import it.intesys.rookie.domain.Account;
 import it.intesys.rookie.domain.Chat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -21,8 +18,10 @@ import java.util.Optional;
 
 @Repository
 public class ChatRepository extends RookieRepository {
-    public ChatRepository(JdbcTemplate db){
+    private final AccountRepository accountRepository;
+    public ChatRepository(JdbcTemplate db, AccountRepository accountRepository){
         super(db);
+        this.accountRepository = accountRepository;
     }
 
     public Chat save(Chat chat) {
@@ -46,7 +45,7 @@ public class ChatRepository extends RookieRepository {
             }
 
             List<Account> members = chat.getMembers();
-            List<Account> currentMembers = findOriginalChatById(chat.getId()).getMembers();
+            List<Account> currentMembers = findChatById(chat.getId()).getMembers();
 
             List<Account> insertions = subtract(members, currentMembers);
             db.batchUpdate("insert into chat_member (chat_id, account_id) values (?, ?)", insertions, BATCH_SIZE, (ps, account) -> {
@@ -61,14 +60,14 @@ public class ChatRepository extends RookieRepository {
             });
 
 
-            return findOriginalChatById(chat.getId());
+            return findChatById(chat.getId());
         }
     }
 
 
     public Optional<Chat> findById(Long id) {
         try{
-            Chat chat = db.queryForObject("select * from chat where id = ?", this::map, id);
+            Chat chat = findChatById(id);
             return Optional.ofNullable(chat);
         } catch (EmptyResultDataAccessException e){
             logger.warn(e.getMessage());
@@ -76,8 +75,13 @@ public class ChatRepository extends RookieRepository {
         }
     }
 
-    private Chat findOriginalChatById(Long id) {
+    private Chat findChatById(Long id) {
         Chat chat = db.queryForObject("select * from chat where id = ?", this::map, id);
+        if (chat != null) {
+            List<Account> accounts = accountRepository.findByChatId(id);
+            chat.setMembers(accounts);
+
+        }
         return chat;
     }
 
@@ -86,7 +90,9 @@ public class ChatRepository extends RookieRepository {
 
         if(updateCount != 1){
             throw new IllegalStateException(String.format("Update count %d, excepted 1", updateCount));
-        } else System.out.println("DELETE SUCCESS\nUtente con id = " + id);
+        } else {
+            logger.debug("DELETE SUCCESS\nUtente con id = " + id);
+        }
     }
 
     private Chat map(ResultSet resultSet, int i) throws SQLException {

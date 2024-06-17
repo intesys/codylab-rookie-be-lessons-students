@@ -2,6 +2,7 @@ package it.intesys.rookie.repository;
 
 import it.intesys.rookie.domain.Account;
 import it.intesys.rookie.domain.Status;
+import jakarta.annotation.Nonnull;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -91,6 +92,12 @@ public class AccountRepository extends RookieRepository {
         String query = pagingQuery(queryBuffer, pageable);
         List<Account> accounts = db.query(query, this::map, parameters.toArray());
         return new PageImpl<>(accounts, pageable, 0);
+    }
+
+    public List<Account> findByChatId (Long chatId) {
+        return db.query("select b.* from chat_member a " +
+                "join account b on a.account_id = b.id " +
+                "where a.chat_id = ?", this::map, chatId);
     }
 
 }
