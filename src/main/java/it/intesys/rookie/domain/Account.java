@@ -1,5 +1,8 @@
 package it.intesys.rookie.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
+
 import java.time.Instant;
 
 public class Account {
