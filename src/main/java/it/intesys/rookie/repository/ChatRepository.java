@@ -80,7 +80,6 @@ public class ChatRepository extends RookieRepository {
         if (chat != null) {
             List<Account> accounts = accountRepository.findByChatId(id);
             chat.setMembers(accounts);
-
         }
         return chat;
     }
