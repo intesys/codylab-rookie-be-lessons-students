@@ -30,13 +30,9 @@ public class AccountApi {
     }
 
     @GetMapping(API_ACCOUNT + "/{id}")
-    ResponseEntity<AccountDTO> getAccount (@PathVariable Long id) {
-        try {
-            AccountDTO account = accountService.getAccount(id);
-            return ResponseEntity.ok(account);
-        } catch (NotFound e) {
-            return ResponseEntity.notFound().header("X-rookie-error", e.getMessage()).build();
-        }
+    AccountDTO getAccount (@PathVariable Long id) {
+        AccountDTO accountDTO = accountService.getAccount(id);
+        return accountDTO;
     }
 
     @PutMapping(API_ACCOUNT + "/{id}")

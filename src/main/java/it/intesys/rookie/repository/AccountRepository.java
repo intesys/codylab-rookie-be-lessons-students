@@ -30,10 +30,12 @@ public class AccountRepository {
         if(account.getId() == null){
             Long id = db.queryForObject("select nextval('account_sequence') ", Long.class);
             account.setId(id);
-            db.update("insert into account (id, date_created, date_modified, alias, name, surname, email, status) values (?, ?, ?, ?, ?, ?, ?, ?)", account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getStatus().ordinal());
+            db.update("insert into account (id, date_created, date_modified, alias, name, surname, email, status) values (?, ?, ?, ?, ?, ?, ?, ?)",
+                    account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getStatus().ordinal());
             return account;
         } else {
-            int updateCount = db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ?, status = ? where id = ?", Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getStatus().ordinal(), account.getId());
+            int updateCount = db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ?, status = ? where id = ?",
+                    Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getStatus().ordinal(), account.getId());
             if(updateCount != 1){
                 throw new IllegalStateException(String.format("Update count %d, excepted 1", updateCount));
             }
