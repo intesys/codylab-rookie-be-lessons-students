@@ -1,4 +1,4 @@
-CREATE TABLE public.account (
+CREATE TABLE account (
 	id int8 NOT NULL,
 	date_created timestamp NULL,
 	date_modified timestamp NULL,
@@ -8,7 +8,8 @@ CREATE TABLE public.account (
 	alias varchar(128) NULL,
 	CONSTRAINT account_pkey PRIMARY KEY (id)
 );
-CREATE SEQUENCE public.account_sequence
+
+CREATE SEQUENCE account_sequence
 	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 9223372036854775807
