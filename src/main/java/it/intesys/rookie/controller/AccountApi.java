@@ -3,6 +3,7 @@ package it.intesys.rookie.controller;
 import it.intesys.rookie.domain.Account;
 import it.intesys.rookie.dto.AccountDTO;
 import it.intesys.rookie.service.AccountService;
+import it.intesys.rookie.service.Mandatory;
 import it.intesys.rookie.service.NotFound;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,18 +33,15 @@ public class AccountApi {
     }
 
     @GetMapping(API_ACCOUNT + "/{id}")
-    ResponseEntity<AccountDTO> getAccount (@PathVariable Long id) {
-        try {
-            AccountDTO account = accountService.getAccount(id);
-            return ResponseEntity.ok(account);
-        } catch (NotFound e) {
-            return ResponseEntity.notFound().header("X-rookie-error", e.getMessage()).build();
-        }
+    AccountDTO getAccount (@PathVariable Long id) {
+        AccountDTO account = accountService.getAccount(id);
+        return account;
     }
 
     @PutMapping(API_ACCOUNT + "/{id}")
     AccountDTO updateAccount (@PathVariable Long id, @RequestBody AccountDTO account) {
-        return accountService.updateAccount(id, account);
+        AccountDTO accountDTO = accountService.updateAccount(id, account);
+        return accountDTO;
     }
 
     @DeleteMapping(API_ACCOUNT + "/{id}")

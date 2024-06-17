@@ -38,7 +38,7 @@ public class AccountRepository {
         } else {
             int updateCount = db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ?, " +
                     "status = ? where id = ?", Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(),
-                    account.getSurname(), account.getEmail(), account.getStatus(), account.getId());
+                    account.getSurname(), account.getEmail(), account.getStatus().ordinal(), account.getId());
             if(updateCount != 1){
                 throw new IllegalStateException(String.format("Update count %d, excepted 1", updateCount));
             }
