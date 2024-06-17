@@ -1,6 +1,7 @@
 package it.intesys.rookie.service;
 
 import it.intesys.rookie.domain.Account;
+import it.intesys.rookie.domain.Status;
 import it.intesys.rookie.dto.AccountDTO;
 import it.intesys.rookie.dto.AccountMapper;
 import it.intesys.rookie.repository.AccountRepository;
@@ -27,6 +28,9 @@ public class AccountService {
         Instant now = Instant.now();
         account.setDateCreated(now);
         account.setDateModified(now);
+        account.setStatus(Status.REGISTERED);
+
+        verify (account);
 
         account = accountRepository.save(account);
         accountDTO = accountMapper.toDataTransferObject(account);
@@ -42,19 +46,35 @@ public class AccountService {
     }
 
     public AccountDTO updateAccount(Long id, AccountDTO accountDTO) {
-        if(accountRepository.findById(id).isEmpty()){
+        Optional<Account> existing = accountRepository.findById(id);
+        if(existing.isEmpty()){
             throw new NotFound(Account.class, id);
         }
 
         accountDTO.setId(id);
         Account account = accountMapper.toEntity(accountDTO);
+        account.setStatus(existing.get().getStatus());
 
         Instant now = Instant.now();
         account.setDateModified(now);
 
+        verify (account);
         account = accountRepository.save(account);
         accountDTO = accountMapper.toDataTransferObject(account);
         return accountDTO;
+    }
+
+    private void verify(Account account) {
+        if (account.getStatus() == null)
+            throw new Mandatory(Account.class, account.getId(), "status");
+        if (account.getAlias() == null)
+            throw new Mandatory(Account.class, account.getId(), "alias");
+        if (account.getName() == null)
+            throw new Mandatory(Account.class, account.getId(), "name");
+        if (account.getSurname() == null)
+            throw new Mandatory(Account.class, account.getId(), "surname");
+        if (account.getEmail() == null)
+            throw new Mandatory(Account.class, account.getId(), "email");
     }
 
     public void deleteAccount(Long id){

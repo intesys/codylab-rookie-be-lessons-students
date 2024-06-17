@@ -10,6 +10,8 @@ public class AccountDTO {
     private Instant dateCreated, dateModified;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String alias, name, surname, email;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private StatusDTO status;
 
     @Override
     public String toString() {
@@ -78,5 +80,13 @@ public class AccountDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public StatusDTO getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusDTO status) {
+        this.status = status;
     }
 }
