@@ -1,16 +1,16 @@
 package it.intesys.rookie.dto;
 
 import java.time.Instant;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class AccountDTO {
     private Long id;
-    private Instant dateCreated;
-    private Instant dateModified;
-    private String name;
-    private String surname;
-    private String alias;
-    private String email;
-
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Instant dateCreated, dateModified;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String alias, name, surname, email;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private StatusDTO status;
     //set e get
     public Long getId() {
         return id;
@@ -66,5 +66,13 @@ public class AccountDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public StatusDTO getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusDTO status) {
+        this.status = status;
     }
 }

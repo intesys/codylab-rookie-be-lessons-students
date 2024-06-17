@@ -1,5 +1,9 @@
 package it.intesys.rookie.repository;
+
+import jakarta.annotation.Nonnull;
 import it.intesys.rookie.domain.Account;
+import it.intesys.rookie.domain.Chat;
+import it.intesys.rookie.domain.Status;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -13,100 +17,90 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Repository
-public class AccountRepository {
-    private final JdbcTemplate db;
-
+public class AccountRepository extends  RookieRepository {
     public AccountRepository(JdbcTemplate db) {
-        this.db = db;
+        super(db);
     }
 
     public Account save(Account account) {
         if (account.getId() == null) {
-            Long id = db.queryForObject("select nextval('account_sequence')", Long.class);
+            Long id = db.queryForObject("select nextval('account_sequence') ", Long.class);
             account.setId(id);
-            db.update ("insert into account (id, date_created, date_modified, alias, name, surname, email) " +
-                            "values (?, ?, ?, ?, ?, ?, ?)", account.getId(), Timestamp.from(account.getDateCreated()), Timestamp.from(account.getDateModified()),
-                    account.getAlias(), account.getName(), account.getSurname(), account.getEmail());
+            db.update("insert into account (id, date_created, date_modified, alias, name, surname, email, status) " +
+                            "values (?, ?, ?, ?, ?, ?, ?, ?)", account.getId(), Timestamp.from(account.getDateCreated()),
+                    Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(), account.getSurname(),
+                    account.getEmail(), account.getStatus().ordinal());
             return account;
         } else {
-            int updateCount = db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ? where id = ?", Timestamp.from(account.getDateModified()),
-                    account.getAlias(), account.getName(), account.getSurname(), account.getEmail(), account.getId());
-            if (updateCount != 1)
-                throw new IllegalStateException(String.format("Update count %d, expected 1", updateCount));
-            return findAccountById(account.getId());
+            int updateCount = db.update("update account set date_modified = ?, alias = ?, name = ?, surname = ?, email = ?, " +
+                            "status = ? where id = ?", Timestamp.from(account.getDateModified()), account.getAlias(), account.getName(),
+                    account.getSurname(), account.getEmail(), account.getStatus().ordinal(), account.getId());
+            if (updateCount != 1) {
+                throw new IllegalStateException(String.format("Update count %d, excepted 1", updateCount));
+            }
+            return findOriginalAccountById(account.getId());
         }
-
     }
 
     public Optional<Account> findById(Long id) {
         try {
             Account account = db.queryForObject("select * from account where id = ?", this::map, id);
             return Optional.ofNullable(account);
-        }catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
+            System.out.println("FOUND ERROR\nUtente con id = " + id);
+            logger.warn(e.getMessage());
             return Optional.empty();
-
         }
-
     }
-    private Account findAccountById(Long id) {
+
+    private Account findOriginalAccountById(Long id) {
         Account account = db.queryForObject("select * from account where id = ?", this::map, id);
         return account;
     }
-    public void delete(Long id) {
+
+    public void deleteAccount(Long id) {
         int updateCount = db.update("delete from account where id = ?", id);
-        if (updateCount != 1)
-            throw new IllegalStateException(String.format("Update count %d, expected 1", updateCount));
+
+        if (updateCount != 1) {
+            throw new IllegalStateException(String.format("Update count %d, excepted 1", updateCount));
+        } else System.out.println("DELETE SUCCESS\nUtente con id = " + id);
     }
 
     private Account map(ResultSet resultSet, int i) throws SQLException {
         Account account = new Account();
         account.setId(resultSet.getLong("id"));
-        account.setDateCreated(resultSet.getTimestamp("date_created").toInstant());
-        account.setDateModified(resultSet.getTimestamp("date_modified").toInstant());
+        account.setDateCreated(Optional.ofNullable(resultSet.getTimestamp("date_created")).map(Timestamp::toInstant).orElse(null));
+        account.setDateModified(Optional.ofNullable(resultSet.getTimestamp("date_modified")).map(Timestamp::toInstant).orElse(null));
+        account.setAlias(resultSet.getString("alias"));
         account.setName(resultSet.getString("name"));
         account.setSurname(resultSet.getString("surname"));
-        account.setAlias(resultSet.getString("alias"));
         account.setEmail(resultSet.getString("email"));
+        Status[] statuses = Status.values();
+        int statusIndex = resultSet.getInt("status");
+        account.setStatus(statuses[statusIndex]);
         return account;
     }
 
     public Page<Account> findAll(String filter, Pageable pageable) {
         StringBuilder queryBuffer = new StringBuilder("select * from account ");
         List<Object> parameters = new ArrayList<>();
-        if(filter != null && !filter.isBlank()){
+        if (filter != null && !filter.isBlank()) {
             queryBuffer.append("where name like ? or surname like ? or email like ? or alias like ?");
             String like = "%" + filter + "%";
-            for (int i =0; i<4; i++) parameters.add(like);
+            for (int i = 0; i < 4; i++) parameters.add(like);
         }
         String query = pagingQuery(queryBuffer, pageable);
         List<Account> accounts = db.query(query, this::map, parameters.toArray());
         return new PageImpl<>(accounts, pageable, 0);
     }
-    protected String pagingQuery(StringBuilder query, Pageable pageable) {
-        String orderSep = "";
-        Sort sort = pageable.getSort();
-        if (!sort.isEmpty()) {
-            query.append(" order by ");
-            for (Sort.Order order: sort) {
-                query.append(orderSep)
-                        .append(order.getProperty())
-                        .append(' ')
-                        .append(order.getDirection().isDescending() ? "desc" : "")
-                        .append(' ');
-                orderSep = ", ";
-            }
-        }
 
-        query.append("limit ")
-                .append(pageable.getPageSize())
-                .append(' ')
-                .append("offset ")
-                .append(pageable.getOffset());
-
-        return query.toString();
+    public List<Account> findByChatId(Long chatId) {
+        return db.query("select b.* from chat_member a " +
+                "join account b on a.account_id = b.id " +
+                "where a.chat_id = ?", this::map, chatId);
     }
 }
+

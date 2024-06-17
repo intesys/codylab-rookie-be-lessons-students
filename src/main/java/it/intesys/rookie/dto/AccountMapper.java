@@ -1,7 +1,10 @@
 package it.intesys.rookie.dto;
 
 import it.intesys.rookie.domain.Account;
+import it.intesys.rookie.domain.Status;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 
@@ -15,6 +18,9 @@ public class AccountMapper {
         account.setName(accountDTO.getName());
         account.setSurname(accountDTO.getSurname());
         account.setEmail(accountDTO.getEmail());
+        account.setStatus(Optional.ofNullable(accountDTO.getStatus())
+                .map(s -> Status.valueOf(s.name()))
+                .orElse(null));
         return account;
 
     }
@@ -28,6 +34,8 @@ public class AccountMapper {
         accountDTO.setSurname(account.getSurname());
         accountDTO.setAlias(account.getAlias());
         accountDTO.setEmail(account.getEmail());
+
+        accountDTO.setStatus(StatusDTO.valueOf(account.getStatus().name()));
         return accountDTO;
     }
 }
