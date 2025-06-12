@@ -10,6 +10,9 @@
 
   <properties>
     <spring-boot.version>3.0.0</spring-boot.version>
+    <maven.compiler.source>17</maven.compiler.source>
+
+    <maven.compiler.target>17</maven.compiler.target>
   </properties>
 
   <dependencies>
