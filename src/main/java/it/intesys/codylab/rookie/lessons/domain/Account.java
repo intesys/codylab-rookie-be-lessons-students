@@ -1,14 +1,16 @@
-package it.intesys.codylab.roockie.lessons.dto;
+package it.intesys.codylab.rookie.lessons.domain;
 
 import java.time.Instant;
+import java.util.Objects;
 
-public class AccountDto {
-     private Long id;
-     private String alias;
-     private String name;
-     private String surname;
-     private String email;
-     private Instant dateCreated;
+public class Account {
+    private Long id;
+    private String alias;
+    private String name;
+    private String surname;
+    private String email;
+    private Instant dateCreated;
+    private Instant dateModified;
 
     public Long getId() {
         return id;
@@ -66,7 +68,32 @@ public class AccountDto {
         this.dateModified = dateModified;
     }
 
-    private Instant dateModified;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account account = (Account) o;
+        return Objects.equals(id, account.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    public static void main(String [] args){
+        Account account = new Account();
+        account.setId(1L);
+        account.setAlias("jdoe");
+
+        Account account2 = new Account();
+        account.setId(2L);
+        account.setAlias("jdoe");
+
+        System.out.println("Account 1 equals Account 1 : " + account.equals(account2));
 
 
+
+    }
 }

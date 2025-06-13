@@ -3,19 +3,18 @@ package it.intesys.codylab.rookie.lessons.dto;
 import java.time.Instant;
 
 public class AccountDto {
-    private long id;
-    private String alias;
-    private String name;
-    private String surname;
-    private String email;
-    private Instant dateCreated;
-    private Instant dataModified;
+     private Long id;
+     private String alias;
+     private String name;
+     private String surname;
+     private String email;
+     private Instant dateCreated;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -59,10 +58,15 @@ public class AccountDto {
         this.dateCreated = dateCreated;
     }
 
-    public Instant getDataModified() {
-        return dataModified;
+    public Instant getDateModified() {
+        return dateModified;
     }
-    public void setDataModified(Instant dataModified) {
-        this.dataModified = dataModified;
+
+    public void setDateModified(Instant dateModified) {
+        this.dateModified = dateModified;
     }
+
+    private Instant dateModified;
+
+
 }

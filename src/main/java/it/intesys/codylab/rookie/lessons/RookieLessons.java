@@ -9,4 +9,5 @@ public class RookieLessons {
         SpringApplication application = new SpringApplication(RookieLessons.class);
         application.run(args);
     }
+
 }
