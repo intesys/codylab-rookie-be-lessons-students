@@ -13,8 +13,8 @@ public class AccountApi {
     AccountService accountService;
 
     @PostMapping("/api/account")
-    void createAccount(@RequestBody AccountDto accountDto){
-        accountService.createAccount(accountDto);
+    AccountDto createAccount(@RequestBody AccountDto accountDto){
+         return accountService.createAccount(accountDto);
 
 
     }
