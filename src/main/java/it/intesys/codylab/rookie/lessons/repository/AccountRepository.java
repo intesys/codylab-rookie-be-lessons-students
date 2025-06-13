@@ -24,12 +24,34 @@ public class AccountRepository {
             account.setId(id);
             Instant dateCreated = account.getDateCreated();
             Instant dateModified = account.getDateModified();
-            jdbcTemplate.update ("insert into account (id, alias, name, surname, email, date_created, date_modified) " +
-                    "values (?, ?, ?, ?, ?, ?, ?)",
-                    account.getId (), account.getAlias(), account.getName (), account.getSurname (), account.getEmail (),
-                    Timestamp.from(dateCreated), Timestamp.from(dateModified));
+            jdbcTemplate.update ("""
+                    insert into account (id, alias, name, surname, email, date_created, date_modified)
+                    values (?, ?, ?, ?, ?, ?, ?)
+                """,
+                account.getId (), account.getAlias(), account.getName (), account.getSurname (), account.getEmail (),
+                Timestamp.from(dateCreated), Timestamp.from(dateModified));
 
             logger.info("Account created with id {}", account.getId ());
+        } else {
+            Instant dateModified = account.getDateModified();
+            jdbcTemplate.update ("""
+                    update account set
+                        alias = ?,
+                        name = ?,
+                        surname = ?,
+                        email = ?,
+                        date_modified = ?
+                    where
+                        id = ?
+                """,
+                account.getAlias(),
+                account.getName (),
+                account.getSurname (),
+                account.getEmail (),
+                Timestamp.from(dateModified),
+                account.getId ());
+
+            logger.info("Updated account with id {}", account.getId ());
         }
      }
 }
