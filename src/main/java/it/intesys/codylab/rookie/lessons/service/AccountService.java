@@ -23,9 +23,19 @@ public class AccountService {
 
     public AccountDto createAccount(AccountDto accountDto) {
         logger.info("Creating account alias{}", accountDto.getAlias());
+    Account account = accountMapper.toDomain(accountDto);
+    Instant now = Instant.now();
+        account.setDateCreated(now);
+        account.setDateModified(now);
+        accountRepository.save(account);
+    accountDto = accountMapper.toDto(account);
+        return accountDto;
+}
+
+    public AccountDto updateAccount(AccountDto accountDto) {
+        logger.info("Updating account alias{}", accountDto.getAlias());
         Account account = accountMapper.toDomain(accountDto);
         Instant now = Instant.now();
-        account.setDateCreated(now);
         account.setDateModified(now);
         accountRepository.save(account);
         accountDto = accountMapper.toDto(account);

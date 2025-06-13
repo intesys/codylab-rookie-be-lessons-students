@@ -29,14 +29,11 @@ public class AccountMapper {
             return null;
 
         AccountDto accountDto = new AccountDto();
-        accountDto.setId(account.getId());
+        account.setId(accountDto.getId());
         accountDto.setName(account.getName());
         accountDto.setSurname(account.getSurname());
-        accountDto.setId(account.getId());
         accountDto.setAlias(account.getAlias());
         accountDto.setEmail(account.getEmail());
-        accountDto.setDateCreated(account.getDateCreated());
-        accountDto.setDateModified(account.getDateModified());
 
         return accountDto;
     }

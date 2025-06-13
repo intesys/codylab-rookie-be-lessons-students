@@ -1,11 +1,9 @@
 package it.intesys.codylab.rookie.lessons.repository;
 
-import it.intesys.codylab.rookie.lessons.api.AccountApi;
 import it.intesys.codylab.rookie.lessons.domain.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.batch.BatchProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -24,12 +22,28 @@ public class AccountRepository {
             account.setId(id);
             Instant dateCreated = account.getDateCreated();
             Instant dateModified = account.getDateModified();
-            jdbcTemplate.update("insert into account(id, alias, name, surname, email, date_created, date_modified)" +
-                    "values(?, ?, ?, ?, ?, ?, ?)",
+            jdbcTemplate.update("""
+                    insert into account(id, alias, name, surname, email, date_created, date_modified)"
+                    "values(?, ?, ?, ?, ?, ?, ?)""",
                     account.getId(), account.getAlias(), account.getName(), account.getSurname(),
                     account.getEmail(), Timestamp.from(dateCreated), Timestamp.from(dateModified));
 
             logger.info("Account created with id{}", account.getId());
+        } else {
+            Instant dateModified = account.getDateModified();
+            jdbcTemplate.update("""
+                            update account set
+                            alias = ?,
+                            name = ?,
+                            surname = ?,
+                            email = ?,
+                            date_modified = ?
+                            where id = ?
+                            """,
+                    account.getAlias(), account.getName(), account.getSurname(),
+                    account.getEmail(), Timestamp.from(dateModified), account.getId());
+
+            logger.info("Account updated with id{}", account.getId());
         }
     }
 }
