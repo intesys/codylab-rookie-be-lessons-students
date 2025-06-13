@@ -34,4 +34,19 @@ public class AccountService {
         return accountMapper.toDto(account);
 
     }
+
+    public AccountDto updateAccount(AccountDto accountDto) {
+        logger.info("Updating account alias {}", accountDto.getAlias());
+
+        Account account = accountMapper.toDomain(accountDto);
+        Instant now = Instant.now();
+        account.setDateModified(now);
+
+
+        accountRepository.save(account);
+        return accountMapper.toDto(account);
+
+    }
+
+
 }
