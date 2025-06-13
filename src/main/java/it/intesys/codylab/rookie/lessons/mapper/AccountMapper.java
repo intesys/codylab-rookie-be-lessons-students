@@ -15,8 +15,6 @@ public class AccountMapper {
         account.setSurname(accountDto.getSurname());
         account.setAlias(accountDto.getAlias());
         account.setEmail(accountDto.getEmail());
-        account.setDateCreated(accountDto.getDateCreated());
-        account.setDateModified(accountDto.getDateModified());
 
         return account;
     }
