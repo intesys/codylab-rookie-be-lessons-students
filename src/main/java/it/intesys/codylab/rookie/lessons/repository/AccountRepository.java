@@ -28,6 +28,28 @@ public class AccountRepository {
                     Timestamp.from(dateCreated), Timestamp.from(dateModified));
             logger.info("account created with id{}",account.getId());
         }
+        else{
+            Instant dateModified = account.getDateModified();
+            jdbcTemplate.update("""
+                            update account set
+                                alias=?
+                                name=?
+                                surname=?
+                                email=?
+                                date_modified=?
+                            share
+                                id=?
+                            """,
+
+                    account.getAlias(),
+                    account.getName(),
+                    account.getSurname(),
+                    account.getEmail(),
+                    Timestamp.from(dateModified),
+                    account.getId());
+            logger.info("updated account created with id{}",account.getId());
+
+        }
 
 
     }

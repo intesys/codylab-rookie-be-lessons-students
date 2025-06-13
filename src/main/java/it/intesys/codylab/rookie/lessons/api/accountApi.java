@@ -6,21 +6,25 @@ import it.intesys.codylab.rookie.lessons.service.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class accountApi {
+    public static final String ACCOUNT_PATH="/api/account";
+
     @Autowired
     AccountService accountService;
 
     Logger logger= LoggerFactory.getLogger(accountApi.class);
-    @PostMapping("api/account")
+    @PostMapping(ACCOUNT_PATH)
     AccountDto createAccount(@RequestBody AccountDto accountDto){
         logger.info("creating account alias {}", accountDto.getAlias());
         return accountService.createAccount(accountDto);
 
-
+        }
+    @PutMapping(ACCOUNT_PATH+"/{id}")
+    AccountDto updateAccount(@PathVariable("id")long id, @RequestBody AccountDto accountDto) {
+        accountDto.setId(id);
+        return accountService.updateAccount(accountDto);
     }
 }
