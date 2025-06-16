@@ -2,6 +2,7 @@ package it.intesys.codylab.rookie.lessons.api;
 
 import it.intesys.codylab.rookie.lessons.dto.AccountDto;
 import it.intesys.codylab.rookie.lessons.service.AccountService;
+import it.intesys.codylab.rookie.lessons.service.exception.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,18 @@ public class AccountApi {
     }
 
     @PutMapping(PATH + "/{id}")
-    AccountDto updateAccount(@PathVariable("id") Long id, @RequestBody AccountDto accountDto){
+    AccountDto updateAccount(@PathVariable("id") Long id, @RequestBody AccountDto accountDto) throws NotFound {
         accountDto.setId(id);
         return accountService.updateAccount(accountDto);
+    }
+
+    @GetMapping(PATH + "/{id}")
+    AccountDto getAccount(@PathVariable("id") Long id) throws NotFound {
+        return accountService.getAccount(id);
+    }
+
+    @DeleteMapping(PATH + "/{id}")
+    void deleteAccount(@PathVariable("id") Long id) throws NotFound {
+        accountService.deleteAccount(id);
     }
 }

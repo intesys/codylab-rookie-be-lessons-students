@@ -14,7 +14,6 @@ public class AccountMapper {
         account.setId(accountDto.getId());
         account.setName(accountDto.getName());
         account.setSurname(accountDto.getSurname());
-        account.setId(accountDto.getId());
         account.setAlias(accountDto.getAlias());
         account.setEmail(accountDto.getEmail());
         account.setDateCreated(accountDto.getDateCreated());
@@ -29,11 +28,13 @@ public class AccountMapper {
             return null;
 
         AccountDto accountDto = new AccountDto();
-        account.setId(accountDto.getId());
+        accountDto.setId(account.getId());
         accountDto.setName(account.getName());
         accountDto.setSurname(account.getSurname());
         accountDto.setAlias(account.getAlias());
         accountDto.setEmail(account.getEmail());
+        accountDto.setDateCreated(account.getDateCreated());
+        accountDto.setDateModified(account.getDateModified());
 
         return accountDto;
     }

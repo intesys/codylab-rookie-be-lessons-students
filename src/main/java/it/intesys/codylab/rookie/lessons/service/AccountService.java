@@ -1,16 +1,17 @@
 package it.intesys.codylab.rookie.lessons.service;
 
-import it.intesys.codylab.rookie.lessons.api.AccountApi;
 import it.intesys.codylab.rookie.lessons.domain.Account;
 import it.intesys.codylab.rookie.lessons.dto.AccountDto;
 import it.intesys.codylab.rookie.lessons.mapper.AccountMapper;
 import it.intesys.codylab.rookie.lessons.repository.AccountRepository;
+import it.intesys.codylab.rookie.lessons.service.exception.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 public class AccountService {
@@ -32,13 +33,37 @@ public class AccountService {
         return accountDto;
 }
 
-    public AccountDto updateAccount(AccountDto accountDto) {
+    public AccountDto updateAccount(AccountDto accountDto) throws NotFound {
         logger.info("Updating account alias{}", accountDto.getAlias());
-        Account account = accountMapper.toDomain(accountDto);
-        Instant now = Instant.now();
-        account.setDateModified(now);
-        accountRepository.save(account);
-        accountDto = accountMapper.toDto(account);
-        return accountDto;
+        Optional<Account> accountOptional = accountRepository.findById(accountDto.getId());
+        if (accountOptional.isPresent()) {
+            Account account = accountMapper.toDomain(accountDto);
+            Instant now = Instant.now();
+            account.setDateModified(now);
+            account = accountRepository.save(account);
+            accountDto = accountMapper.toDto(account);
+            return accountDto;
+        }else{
+            throw new NotFound(accountDto.getId(), Account.class);
+    }
+    }
+
+    public AccountDto getAccount(Long id) throws NotFound {
+        Optional<Account> accountOptional = accountRepository.findById(id);
+        if(accountOptional.isPresent()){
+            Account account = accountOptional.get();
+            return accountMapper.toDto(account);
+        } else {
+            throw new NotFound(id, Account.class);
+        }
+    }
+
+    public void deleteAccount(Long id) throws NotFound {
+        Optional<Account> accountOptional = accountRepository.findById(id);
+        if(accountOptional.isPresent()){
+            accountRepository.deleteById(id);
+        } else {
+            throw new NotFound(id, Account.class);
+        }
     }
 }
