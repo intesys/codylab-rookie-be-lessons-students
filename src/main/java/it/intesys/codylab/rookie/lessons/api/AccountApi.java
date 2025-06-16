@@ -26,4 +26,16 @@ public class AccountApi {
         accountDto.setId(id);
         return accountService.updateAccount(accountDto);
     }
+
+    @GetMapping (ACCOUNT_PATH + "/{id}")
+    AccountDto getAccount(@PathVariable("id") Long id){
+        return accountService.getAccount(id);
+    }
+
+    @DeleteMapping (ACCOUNT_PATH + "/{id}")
+    void deleteAccount(@PathVariable("id") Long id){
+        accountService.deleteAccount(id);
+    }
+
+
 }
