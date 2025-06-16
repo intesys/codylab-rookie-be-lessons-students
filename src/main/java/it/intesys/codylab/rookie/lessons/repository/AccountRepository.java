@@ -4,19 +4,25 @@ import it.intesys.codylab.rookie.lessons.domain.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Optional;
 
 @Repository
-public class AccountRepository {
+public class AccountRepository implements RookieRepository<Account>, RowMapper<Account> {
     @Autowired
     JdbcTemplate jdbcTemplate;
     Logger logger = LoggerFactory.getLogger(AccountRepository.class);
 
-    public void save (Account account) {
+    @Override
+    public Account save(Account account) {
         logger.info("Creating account alias {}", account.getAlias());
 
         if (account.getId () == null) {
@@ -32,9 +38,10 @@ public class AccountRepository {
                 Timestamp.from(dateCreated), Timestamp.from(dateModified));
 
             logger.info("Account created with id {}", account.getId ());
+            return account;
         } else {
             Instant dateModified = account.getDateModified();
-            jdbcTemplate.update ("""
+            int count = jdbcTemplate.update ("""
                     update account set
                         alias = ?,
                         name = ?,
@@ -51,7 +58,48 @@ public class AccountRepository {
                 Timestamp.from(dateModified),
                 account.getId ());
 
+            if (count == 0)
+                idNotFound(account.getId());
+            
             logger.info("Updated account with id {}", account.getId ());
+            return findById0(account.getId());
         }
      }
+
+    public Optional<Account> findById(Long id) {
+        try {
+            Account account = findById0(id);
+            return Optional.ofNullable(account);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    private Account findById0(Long id) {
+        return jdbcTemplate.queryForObject("select * from account where id = ?", this, id);
+    }
+
+
+    @Override
+    public Account mapRow(ResultSet rs, int rowNum) throws SQLException {
+        Account account = new Account();
+        account.setId(rs.getLong("id"));
+        account.setName(rs.getString("name"));
+        account.setSurname(rs.getString("surname"));
+        account.setAlias(rs.getString("alias"));
+        account.setEmail(rs.getString("email"));
+        account.setDateCreated(rs.getTimestamp("date_created").toInstant());
+        account.setDateModified(rs.getTimestamp("date_modified").toInstant());
+        return account;
+    }
+
+    public void deleteById(Long id) {
+        int count = jdbcTemplate.update("delete from account where id = ?", id);
+        if (count == 0)
+            idNotFound(id);
+    }
+
+    private static void idNotFound(Long id) {
+        throw new RuntimeException("Account with id " + id + " not found for deletion");
+    }
 }
