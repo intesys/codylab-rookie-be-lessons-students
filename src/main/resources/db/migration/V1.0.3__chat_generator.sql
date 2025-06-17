@@ -1,0 +1,2 @@
+create sequence chat_id_generator;
+

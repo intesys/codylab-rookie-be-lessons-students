@@ -24,7 +24,7 @@
    email varchar(128),
    date_create timestamp,
    date_modified timestamp 
-   )
+   );
    
    create sequence account_id_generator;
    
