@@ -1,18 +1,22 @@
 package it.intesys.codylab.rookie.lessons.repository;
 
 import it.intesys.codylab.rookie.lessons.domain.Account;
+import it.intesys.codylab.rookie.lessons.domain.Chat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -101,5 +105,15 @@ public class AccountRepository implements RookieRepository<Account>, RowMapper<A
 
     private static void idNotFound(Long id) {
         throw new RuntimeException("Account with id " + id + " not found for deletion");
+    }
+
+    public List<Account> findByChatId(Long chatId) {
+        return jdbcTemplate.query("""
+            select * from account
+            where id in (
+                select account_id from chat_account
+                where chat_id = ?
+            )
+            """, this, chatId);
     }
 }
