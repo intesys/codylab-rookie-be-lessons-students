@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -69,5 +70,12 @@ public class AccountService {
         } else {
             throw new NotFound(id, Account.class);
         }
+    }
+
+    public List<AccountDto> getAccounts(int page, int size, String sort, String filter) {
+        List<Account> accounts = accountRepository.findAll (page, size, sort, filter);
+        return accounts.stream()
+                .map(accountMapper::toDto)
+                .toList();
     }
 }

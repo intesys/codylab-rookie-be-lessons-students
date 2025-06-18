@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -19,9 +18,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Repository
-public class ChatRepository implements RookieRepository<Chat>, RowMapper<Chat> {
+public class ChatRepository extends RookieRepository<Chat> implements RowMapper<Chat> {
     public static final int BATCH_SIZE = 100;
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -34,7 +35,8 @@ public class ChatRepository implements RookieRepository<Chat>, RowMapper<Chat> {
     public Chat save(Chat chat) {
         logger.info("Creating chat");
 
-        if (chat.getId () == null) {
+        boolean insertion = chat.getId() == null;
+        if (insertion) {
             Long id = jdbcTemplate.queryForObject("select nextval ('chat_id_generator')", Long.class);
             chat.setId(id);
             Instant dateCreated = chat.getDateCreated();
@@ -61,7 +63,6 @@ public class ChatRepository implements RookieRepository<Chat>, RowMapper<Chat> {
                 idNotFound(chat.getId());
 
             logger.info("Updated chat with id {}", chat.getId ());
-            chat = findById0(chat.getId());
         }
 
         Chat currentChat = chat;
@@ -83,6 +84,12 @@ public class ChatRepository implements RookieRepository<Chat>, RowMapper<Chat> {
                 where chat_id = ?
                 and account_id = ?
                 """, toDelete, BATCH_SIZE, setter);
+
+        if (!insertion) {
+            chat = findById0(chat.getId());
+            chat.setMembers(newMembers);
+        }
+
         return chat;
     }
 
@@ -123,5 +130,28 @@ public class ChatRepository implements RookieRepository<Chat>, RowMapper<Chat> {
 
     private static void idNotFound(Long id) {
         throw new RuntimeException("Chat with id " + id + " not found for deletion");
+    }
+
+    public List<Chat> findAll(Integer page, Integer size, String sort, List<Long> memberIds) {
+        StringBuilder buf = new StringBuilder("select  * from chat ");
+        List<Object> parameters = new ArrayList<>();
+        if (!memberIds.isEmpty()) {
+            String questionMarks = IntStream.range(0, memberIds.size())
+                    .mapToObj(i -> "?")
+                    .collect(Collectors.joining(","));
+            buf.append(String.format("""
+                where id in (
+                    select chat_id from chat_account
+                    where account_id in (%s)
+                )
+            """, questionMarks));
+            parameters.addAll(memberIds);
+        };
+        pageQuery(page, size, sort, buf);
+
+        String query = buf.toString();
+        List<Chat> chats = jdbcTemplate.query(query, this, parameters.toArray());
+        chats.forEach(chat -> chat.setMembers(accountRepository.findByChatId(chat.getId())));
+        return chats;
     }
 }

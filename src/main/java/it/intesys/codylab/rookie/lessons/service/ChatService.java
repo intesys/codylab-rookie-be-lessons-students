@@ -2,6 +2,7 @@ package it.intesys.codylab.rookie.lessons.service;
 
 import it.intesys.codylab.rookie.lessons.domain.Chat;
 import it.intesys.codylab.rookie.lessons.dto.ChatDto;
+import it.intesys.codylab.rookie.lessons.dto.ChatFilterDto;
 import it.intesys.codylab.rookie.lessons.exception.NotFound;
 import it.intesys.codylab.rookie.lessons.mapper.ChatMapper;
 import it.intesys.codylab.rookie.lessons.repository.ChatRepository;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -69,5 +72,14 @@ public class ChatService {
         } else {
             throw new NotFound(id, Chat.class);
         }
+    }
+
+    public List<ChatDto> getChats(Integer page, Integer size, String sort, ChatFilterDto filter) {
+        List<Chat> chats = chatRepository.findAll (page, size, sort, Optional.ofNullable(filter)
+                .map(ChatFilterDto::getMemberIds)
+                .orElse(Collections.emptyList()));
+        return chats.stream()
+                .map(chatMapper::toDto)
+                .toList();
     }
 }
