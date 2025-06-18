@@ -1,4 +1,4 @@
-package it.intesys.codylab.rookie.lessons.service.exception;
+package it.intesys.codylab.rookie.lessons.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

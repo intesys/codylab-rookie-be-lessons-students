@@ -1,0 +1,85 @@
+package it.intesys.codylab.rookie.lessons.service;
+
+import it.intesys.codylab.rookie.lessons.domain.Chat;
+import it.intesys.codylab.rookie.lessons.dto.AccountDto;
+import it.intesys.codylab.rookie.lessons.dto.ChatDto;
+import it.intesys.codylab.rookie.lessons.dto.ChatFilterDto;
+import it.intesys.codylab.rookie.lessons.mapper.ChatMapper;
+import it.intesys.codylab.rookie.lessons.repository.ChatRepository;
+import it.intesys.codylab.rookie.lessons.exception.NotFound;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class ChatService {
+    @Autowired
+    ChatRepository chatRepository;
+    @Autowired
+    ChatMapper chatMapper;
+
+    Logger logger = LoggerFactory.getLogger(ChatService.class);
+
+    public ChatDto createChat(ChatDto chatDto) {
+        logger.info("Creating chat");
+    Chat chat = chatMapper.toDomain(chatDto);
+    Instant now = Instant.now();
+        chat.setDateCreated(now);
+        chat.setDateModified(now);
+        chatRepository.save(chat);
+    chatDto = chatMapper.toDto(chat);
+        return chatDto;
+}
+
+    public ChatDto updateChat(ChatDto chatDto) throws NotFound {
+        logger.info("Updating chat with id{}", chatDto.getId());
+        Optional<Chat> chatOptional = chatRepository.findById(chatDto.getId());
+        if (chatOptional.isPresent()) {
+            Chat chat = chatMapper.toDomain(chatDto);
+            Instant now = Instant.now();
+            chat.setDateModified(now);
+            chat = chatRepository.save(chat);
+            chatDto = chatMapper.toDto(chat);
+            return chatDto;
+        }else{
+            throw new NotFound(chatDto.getId(), Chat.class);
+    }
+    }
+
+    public ChatDto getChat(Long id) throws NotFound {
+        Optional<Chat> chatOptional = chatRepository.findById(id);
+        if(chatOptional.isPresent()){
+            Chat chat = chatOptional.get();
+            return chatMapper.toDto(chat);
+        } else {
+            throw new NotFound(id, Chat.class);
+        }
+    }
+
+    public void deleteChat(Long id) throws NotFound {
+        Optional<Chat> chatOptional = chatRepository.findById(id);
+        if(chatOptional.isPresent()){
+            chatRepository.deleteById(id);
+        } else {
+            throw new NotFound(id, Chat.class);
+        }
+    }
+
+    public List<ChatDto> getChats(Integer page, Integer size, String sort, ChatFilterDto filter) {
+        List<Chat> chats = chatRepository.findAll(page, size, sort, Optional.ofNullable(filter)
+                .map(ChatFilterDto::getMemberIds)
+                .orElse(Collections.emptyList()));
+
+        return chats.stream()
+            .map(chatMapper::toDto)
+                .toList();
+
+    }
+}

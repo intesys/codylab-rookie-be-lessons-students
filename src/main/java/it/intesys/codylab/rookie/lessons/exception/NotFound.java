@@ -1,4 +1,4 @@
-package it.intesys.codylab.rookie.lessons.service.exception;
+package it.intesys.codylab.rookie.lessons.exception;
 
 public class NotFound extends Throwable {
     private final Long id;

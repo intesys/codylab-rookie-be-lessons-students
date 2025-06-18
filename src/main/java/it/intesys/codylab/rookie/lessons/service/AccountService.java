@@ -4,14 +4,17 @@ import it.intesys.codylab.rookie.lessons.domain.Account;
 import it.intesys.codylab.rookie.lessons.dto.AccountDto;
 import it.intesys.codylab.rookie.lessons.mapper.AccountMapper;
 import it.intesys.codylab.rookie.lessons.repository.AccountRepository;
-import it.intesys.codylab.rookie.lessons.service.exception.NotFound;
+import it.intesys.codylab.rookie.lessons.exception.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class AccountService {
@@ -65,5 +68,11 @@ public class AccountService {
         } else {
             throw new NotFound(id, Account.class);
         }
+    }
+    public List<AccountDto> getAccounts(int page, int size, String sort, String filter){
+        List<Account> accounts = accountRepository.findAll(page, size, sort, filter);
+        return accounts.stream()
+            .map(accountMapper::toDto)
+            .toList();
     }
 }

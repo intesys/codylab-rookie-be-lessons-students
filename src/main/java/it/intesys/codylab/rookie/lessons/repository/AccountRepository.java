@@ -13,10 +13,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class AccountRepository implements RookieRepository<Account>, RowMapper<Account> {
+public class AccountRepository extends RookieRepository<Account> implements RowMapper<Account> {
     @Autowired
     JdbcTemplate jdbcTemplate;
     Logger logger = LoggerFactory.getLogger(AccountRepository.class);
@@ -29,8 +31,8 @@ public class AccountRepository implements RookieRepository<Account>, RowMapper<A
             Instant dateCreated = account.getDateCreated();
             Instant dateModified = account.getDateModified();
             jdbcTemplate.update("""
-                    insert into account(id, alias, name, surname, email, date_created, date_modified)"
-                    "values(?, ?, ?, ?, ?, ?, ?)""",
+                    insert into account(id, alias, name, surname, email, date_created, date_modified)
+                    values(?, ?, ?, ?, ?, ?, ?)""",
                     account.getId(), account.getAlias(), account.getName(), account.getSurname(),
                     account.getEmail(), Timestamp.from(dateCreated), Timestamp.from(dateModified));
 
@@ -94,5 +96,32 @@ public class AccountRepository implements RookieRepository<Account>, RowMapper<A
 
     private static void IdNotFound(Long id) {
         throw new RuntimeException("Account with id " + id + " not found");
+    }
+
+    public List<Account> findbyChatId(Long chatId) {
+        return null;
+    }
+
+    public List<Account> findAll(int page, int size, String sort, String filter) {
+        StringBuilder buf = new StringBuilder("select * from account ");
+        List<String> parameters = new ArrayList<>();
+        if(filter != null && filter.isBlank()){
+            buf.append("""
+                    where alias like '%pippo%'
+                    or surname like '%pippo%'
+                    or email like '%pippo%'
+                    """);
+            filter= "%" + filter
+                    .replace('*', '%' )
+                    .replace('?', '_') + "%";
+            for(int i = 0; i<3; i++){
+                parameters.add(filter);
+            }
+
+        };
+        pageQuery(page, size, sort, buf);
+
+        String query = buf.toString();
+        return jdbcTemplate.query(query, this, null);
     }
 }
