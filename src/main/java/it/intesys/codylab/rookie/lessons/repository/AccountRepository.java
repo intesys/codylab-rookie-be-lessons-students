@@ -15,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 @Repository
@@ -111,5 +112,33 @@ public class AccountRepository implements RookieRepository<Account>, RowMapper<A
                 	where chat_id = ?
                 )     
                 """, this, chatId);
+    }
+
+    public List<Account> findAll(int page, int size, String sort, String filter) {
+        StringBuilder buf = new StringBuilder("select * from account ");
+        List <String> parameters = new ArrayList<>();
+        if(filter != null && !filter.isBlank()){
+            buf.append("""
+                    where alias like ?
+                    or surname like ?
+                    or email like ?
+                    """);
+            filter = "%" + filter
+                    .replace("*","%")
+                    .replace("?","_")
+                    + "%";
+            for(int i=0; i<3; i++)
+                parameters.add(filter);
+        };
+        String[] sortTokens = sort.split(",");
+        buf.append("order by ").append(sortTokens[0].trim()).append(' ');
+        if(sortTokens.length== 2)
+            buf.append(sortTokens[1].trim()).append(' ');
+
+        buf.append("limit").append(' ').append(size).append(' ');
+        buf.append("offset").append(' ').append(page * size);
+
+        String query = buf.toString();
+        return jdbcTemplate.query(query, this,parameters.toArray());
     }
 }
