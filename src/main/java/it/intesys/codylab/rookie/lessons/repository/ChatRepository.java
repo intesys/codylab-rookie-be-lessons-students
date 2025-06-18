@@ -33,13 +33,14 @@ public class ChatRepository implements RookieRepository<Chat>, RowMapper<Chat>{
     @Override
     public Chat save(Chat chat) {
         logger.info("Creating chat");
-        if (chat.getId() == null) {
+        boolean insertion = chat.getId() == null;
+        if (insertion) {
             Long id = jdbcTemplate.queryForObject("select nextval ('chat_id_generator') ", Long.class);
             chat.setId(id);
             Instant dateCreated = chat.getDateCreated();
             Instant dateModified = chat.getDateModified();
             jdbcTemplate.update("""
-                            insert into chat (id, date_create, date_modified)
+                            insert into chat (id, date_created, date_modified)
                             values (?, ?, ?)""",
                     chat.getId(),
                     Timestamp.from(dateCreated), Timestamp.from(dateModified));
@@ -61,7 +62,6 @@ public class ChatRepository implements RookieRepository<Chat>, RowMapper<Chat>{
 
 
             logger.info("Updating chat with id {}", chat.getId());
-            chat = findById0(chat.getId());
         }
 
         Chat currentChat = chat;
@@ -83,6 +83,10 @@ public class ChatRepository implements RookieRepository<Chat>, RowMapper<Chat>{
                 where chat_id = ?
                 and account_id = ?
                 """,toDelete, BATCH_SIZE, setter);
+        if(!insertion) {
+            chat = findById0(chat.getId());
+            chat.setMembers(newMembers);
+        }
         return chat;
     }
 
@@ -112,7 +116,7 @@ public class ChatRepository implements RookieRepository<Chat>, RowMapper<Chat>{
     public Chat mapRow(ResultSet rs, int rowNum) throws SQLException {
         Chat chat = new Chat();
         chat.setId (rs.getLong("id"));
-        chat.setDateCreated (rs.getTimestamp("date_create").toInstant());
+        chat.setDateCreated (rs.getTimestamp("date_created").toInstant());
         chat.setDateModified (rs.getTimestamp("date_modified").toInstant());
         return chat;
     }

@@ -34,6 +34,7 @@ public class AccountApi {
 
     @DeleteMapping (ACCOUNT_PATH + "/{id}")
     void deleteAccount(@PathVariable("id") Long id){
+        
         accountService.deleteAccount(id);
     }
 

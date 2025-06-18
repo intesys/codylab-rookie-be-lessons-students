@@ -112,8 +112,4 @@ public class AccountRepository implements RookieRepository<Account>, RowMapper<A
                 )     
                 """, this, chatId);
     }
-
-
-
-    }
 }
