@@ -46,6 +46,17 @@
           <target>16</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <docker>
+            <publishRegistry>
+              <username>carlo.marchiori@gmail.com</username>
+            </publishRegistry>
+          </docker>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
