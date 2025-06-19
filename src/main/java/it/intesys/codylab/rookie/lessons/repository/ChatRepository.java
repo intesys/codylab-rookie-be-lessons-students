@@ -102,6 +102,7 @@ public class ChatRepository extends RookieRepository<Chat> implements RowMapper<
     public Optional<Chat> findById(Long id) {
         try {
             Chat chat = findById0(id);
+            chat.setMembers(accountRepository.findByChatId(id));
             return Optional.ofNullable(chat);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

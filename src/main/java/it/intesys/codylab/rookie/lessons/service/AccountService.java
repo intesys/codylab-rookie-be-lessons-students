@@ -63,7 +63,6 @@ public class AccountService {
     }
 
     public void deleteAccount(Long id) {
-        accountRepository.deleteById (id);
         Optional<Account> accountOptional = accountRepository.findById (id);
         if (accountOptional.isPresent()) {
             accountRepository.deleteById (id);

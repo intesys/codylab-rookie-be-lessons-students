@@ -15,4 +15,9 @@ public class ExceptionTranslator {
             .body(e.getMessage());
     }
 
+    @ExceptionHandler(SenderNotInChat.class)
+    ResponseEntity<String> handleException (SenderNotInChat e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
 }

@@ -65,7 +65,6 @@ public class ChatService {
     }
 
     public void deleteChat(Long id) {
-        chatRepository.deleteById (id);
         Optional<Chat> chatOptional = chatRepository.findById (id);
         if (chatOptional.isPresent()) {
             chatRepository.deleteById (id);
